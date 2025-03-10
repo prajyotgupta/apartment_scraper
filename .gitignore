@@ -1,7 +1,22 @@
-# Byte-compiled / optimized / DLL files
+# Environment variables
+.env
+
+# Config with sensitive data
+config/config.json
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Logs
+*.log
+
+# CSV files
+*.csv
+
+# Screenshots
+*.png
 
 # C extensions
 *.so
@@ -56,7 +71,6 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -128,7 +142,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/

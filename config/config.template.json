@@ -22,14 +22,11 @@
     "email": {
       "smtp_server": "smtp.gmail.com",
       "smtp_port": 587,
-      "sender_email": "prajyotgupta@gmail.com",
+      "sender_email": "your-email@gmail.com",
       "receiver_emails": [
-        "prajyotgupta@gmail.com",
-        "prajwalrhegde@gmail.com",
-        "aishwaryalekshmi.c@gmail.com",
-        "lincolnspartacus@gmail.com"
+        "recipient1@gmail.com",
+        "recipient2@gmail.com"
       ],
-      "app_password": "ucoa qkqp jkde jfid"
+      "app_password": "YOUR_APP_PASSWORD_HERE"
     }
-  }
-  
+  } 

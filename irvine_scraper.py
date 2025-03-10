@@ -1,12 +1,19 @@
 import json
 import csv
-from playwright.sync_api import sync_playwright
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.os_manager import ChromeType
 import time
 from bs4 import BeautifulSoup
 import logging
 import re
 
-logging.basicConfig(level=logging.DEBUG)  # Changed to DEBUG level
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def clean_feature_text(text):
@@ -52,10 +59,22 @@ def is_two_bed_two_bath(beds_text):
     return "2 Bed / 2 Bath" in beds_text
 
 def scrape_irvine_apartments():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        
+    # Set up Chrome options
+    chrome_options = Options()
+    chrome_options.add_argument('--headless=new')  # Run in headless mode
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--window-size=1920,1080')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-notifications')  # Disable notifications
+    chrome_options.add_argument('--disable-extensions')    # Disable extensions
+    
+    # Initialize the Chrome WebDriver
+    service = Service()
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    wait = WebDriverWait(driver, 20)
+    
+    try:
         # Load configuration
         with open('config/config.json', 'r') as f:
             config = json.load(f)
@@ -63,54 +82,47 @@ def scrape_irvine_apartments():
         url = config['apartments']['crescent_village']['url']
         price_range = config['apartments']['crescent_village']['filters']['price_range']
         logger.info(f"Navigating to URL: {url}")
-        page.goto(url)
+        
+        # Navigate to the page
+        driver.get(url)
         
         # Wait for cookie consent if needed
         try:
-            page.wait_for_selector('#onetrust-accept-btn-handler', timeout=5000)
-            page.click('#onetrust-accept-btn-handler')
+            cookie_button = wait.until(EC.presence_of_element_located((By.ID, 'onetrust-accept-btn-handler')))
+            cookie_button.click()
             logger.info("Accepted cookie consent")
         except:
             logger.info("No cookie consent needed or timed out")
         
-        # Wait for page to load completely
-        page.wait_for_load_state('networkidle')
-        time.sleep(2)  # Additional wait for dynamic content
-        
         # Check if we need to click availability
         try:
-            availability_button = page.get_by_role("link", name="Availability")
-            if availability_button:
-                availability_button.click()
-                logger.info("Clicked availability link")
-                time.sleep(2)
+            availability_button = wait.until(EC.presence_of_element_located((By.LINK_TEXT, "Availability")))
+            availability_button.click()
+            logger.info("Clicked availability link")
+            time.sleep(2)
         except:
             logger.info("Already on availability section")
         
         # Wait for floor plans to load
-        page.wait_for_selector('.fapt-fp-list-item', timeout=60000)
-        time.sleep(2)  # Additional wait for dynamic content
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'fapt-fp-list-item')))
+        time.sleep(2)
         
         # Expand all floor plans
-        floor_plans = page.query_selector_all('.fapt-fp-list-item__acc-trigger-cta')
+        floor_plans = driver.find_elements(By.CLASS_NAME, 'fapt-fp-list-item__acc-trigger-cta')
         logger.info(f"Found {len(floor_plans)} floor plans")
         
         for plan in floor_plans:
             try:
-                plan.click()
-                time.sleep(1)  # Give time for expansion
+                driver.execute_script("arguments[0].click();", plan)
+                time.sleep(1)
             except:
                 logger.warning("Could not click on a floor plan")
         
         # Additional wait for all expansions to complete
         time.sleep(3)
         
-        # Save the HTML content for debugging
-        with open('debug.html', 'w', encoding='utf-8') as f:
-            f.write(page.content())
-        
         # Parse the expanded content
-        soup = BeautifulSoup(page.content(), 'html.parser')
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
         
         # Find all unit rows
         units = []
@@ -130,7 +142,7 @@ def scrape_irvine_apartments():
                 
                 # Extract unit details
                 unit_name = row.select_one('.fapt-fp-unit__unit-name-text')
-                beds = plan_container.select_one('.fapt-fp-list-item__column--beds-baths')  # Updated selector
+                beds = plan_container.select_one('.fapt-fp-list-item__column--beds-baths')
                 term = row.select_one('.fapt-fp-unit__column-inner--term span')
                 price = row.select_one('.fapt-fp-unit__column-inner--price span')
                 available = row.select_one('.fapt-fp-unit__column-inner--available span')
@@ -188,9 +200,11 @@ def scrape_irvine_apartments():
         else:
             logger.warning("No matching 2 bed/2 bath apartments found")
         
-        # Save final state screenshot
-        page.screenshot(path='final_state.png')
-        browser.close()
+        # Save screenshot
+        driver.save_screenshot('final_state.png')
+        
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
     scrape_irvine_apartments() 

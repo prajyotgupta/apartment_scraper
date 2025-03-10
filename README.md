@@ -1,164 +1,95 @@
-# Crescent Village Apartment Scraper
+# 🤖 PB-bot: Your Friendly Neighborhood Apartment Scanner
 
-A Python script that automatically scrapes and monitors apartment availability at Crescent Village in San Jose. The script specifically tracks 2 bed/2 bath units across different apartment buildings within the complex.
+*beep boop* Hello humans! I'm PB-bot, your automated apartment-hunting companion! 
 
-## Features
+## 🎯 My Mission
+I tirelessly scan configured apartments to find the perfect 2 bed/2 bath home for my friend Hedge and his companions. I'm like a ninja 🥷, but for apartments!
 
-- **Targeted Search**: Focuses on 2 bed/2 bath units only
-- **Multi-building Coverage**: Tracks units across all Crescent Village buildings:
-  - Cadiz
-  - Milano
-  - Mirada
-  - Tesoro
-  - Toscana
-  - Verona
-- **Comprehensive Data**: Extracts detailed information for each unit:
-  - Building and apartment number
-  - Lease term
-  - Monthly rent
-  - Availability date
-  - Floor number
-  - Detailed features and amenities
-- **Price Filtering**: Configurable price range filter (default: $3,000 - $4,200)
-- **Automated Process**: Handles website navigation and data extraction automatically
+## 🔍 What I Do
+- Scout for 2 bed/2 bath units
+- Filter by your preferred price range ($3,000-$4,200; can be configured)
+- Send beautiful HTML emails with apartment details
+- Include random jokes about Hedge (because why not? 😄)
+- Attach CSV files for the spreadsheet lovers
 
-## Prerequisites
+## 🛠️ How to Make Me Work
 
-- Python 3.8 or higher
-- pip (Python package installer)
+### Prerequisites
+```bash
+# I run on Python 3.8+ and need these packages to function:
+python3 -m pip install pandas selenium python-dotenv beautifulsoup4 webdriver-manager
+```
 
-## Installation
+### 🔐 Configuration (Shhh... it's a secret!)
 
-1. Clone this repository:
+1. First, clone my repository:
 ```bash
 git clone https://github.com/yourusername/apartment_scraper.git
 cd apartment_scraper
 ```
 
-2. Create a virtual environment (recommended):
+2. Create my secret files:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+cp config/config.template.json config/config.json
+cp .env.template .env
 ```
 
-3. Install required packages:
+3. Update `.env` with your email settings:
 ```bash
-pip install -r requirements.txt
+EMAIL_APP_PASSWORD=your_gmail_app_password
+EMAIL_SENDER=your-email@gmail.com
+EMAIL_RECEIVERS=email1@gmail.com,email2@gmail.com
 ```
 
-4. Install Playwright browsers:
+To get your Gmail App Password:
+1. Go to Google Account settings
+2. Enable 2-Step Verification
+3. Go to Security → App Passwords
+4. Generate new App Password for "Mail"
+
+### 🚀 Running Me
+
 ```bash
-playwright install chromium
+# One-time scan:
+python3 irvine_scraper.py  # First, get the apartment data
+python3 email_alert.py     # Then, I'll send my report!
+
+# Or set me up as a cron job (I love working 24/7!):
+*/30 * * * * cd /path/to/apartment_scraper && python3 irvine_scraper.py && python3 email_alert.py
 ```
 
-## Configuration
+## 📧 What You'll Get
+- Regular email updates with available apartments
+- Prices sorted for easy viewing
+- Fun bot messages (I'm quite charming! 🤖)
+- Random Hedge jokes (I'm also quite funny!)
+- CSV attachments for data analysis
 
-The script uses `config/config.json` for configuration. Here's how to customize the settings:
+## 🎛️ Customization
+Edit `config/config.json` to modify:
+- Price range filters
+- Apartment configurations
+- Scan interval
+- URL and selectors
 
-1. Open `config/config.json` in your text editor
-2. Modify the configuration options:
+## 🛟 Troubleshooting
 
-```json
-{
-  "apartments": {
-    "crescent_village": {
-      "url": "https://www.irvinecompanyapartments.com/locations/northern-california/san-jose/crescent-village/availability.html",
-      "filters": {
-        "beds": "2 Bed / 2 Bath",
-        "price_range": [3000, 4200]
-      }
-    }
-  },
-  "scraper": {
-    "interval_minutes": 30,
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-  }
-}
-```
+If I'm not working properly:
+1. Check if `.env` has correct email credentials
+2. Ensure all packages are installed
+3. Verify internet connection
+4. Make sure Gmail's "Less secure app access" is enabled
+5. If I'm still misbehaving, check the error messages (I try to be descriptive!)
 
-### Configuration Options:
+## 🤝 Contributing
+Found a way to make me smarter? Create a pull request! Just remember:
+- Keep sensitive data out of the repository
+- Use the template files for configuration
+- Test your changes before submitting
 
-#### Apartment Settings
-- `url`: The URL of the apartment listing page
-- `filters`:
-  - `price_range`: Array of [min_price, max_price] in dollars
-    - Example: `[3000, 4200]` will only show units between $3,000 and $4,200
-  - `beds`: The bed/bath configuration to filter for (default: "2 Bed / 2 Bath")
+## 📝 License
+I'm free to help anyone! (MIT License)
 
-#### Scraper Settings
-- `interval_minutes`: How often to check for updates (if running in monitoring mode)
-- `user_agent`: Browser user agent string (change only if experiencing issues)
-
-### Example Configurations
-
-1. To change the price range to $3,500-$5,000:
-```json
-"filters": {
-  "price_range": [3500, 5000]
-}
-```
-
-2. To update the apartment URL (if it changes):
-```json
-"url": "https://www.newurl.com/crescent-village/availability.html"
-```
-
-## Usage
-
-Run the script with:
-```bash
-python irvine_scraper.py
-```
-
-The script will:
-1. Navigate to the Crescent Village availability page
-2. Expand all floor plans
-3. Filter for 2 bed/2 bath units
-4. Apply price range filter
-5. Save matching units to `apartments.csv`
-
-## Output
-
-The script generates an `apartments.csv` file with the following columns:
-
-- **Apartment**: Building name (e.g., Cadiz, Milano)
-- **BLDG NO. / APT NO.**: Unit identifier
-- **TERM**: Lease term length
-- **PRICE**: Monthly rent
-- **AVAILABLE**: Availability date
-- **Floor**: Floor number
-- **FEATURES**: Unit amenities and features
-
-Example output:
-```csv
-Apartment,BLDG NO. / APT NO.,TERM,PRICE,AVAILABLE,Floor,FEATURES
-Milano,03 1282,12 mo.,$3735,04/02/2025,2th Floor,"2nd Floor, Dog Friendly, Elevator, Granite Countertops, Walk-in Closet, Washer & Dryer In Home"
-```
-
-## Features Tracked
-
-The script captures various unit features including:
-- Floor level
-- Corner/End unit status
-- Dog-friendly units
-- Elevator access
-- Flooring type
-- Kitchen features (islands, appliances)
-- Views (park, pool, courtyard)
-- Special amenities (walk-in closets, patios)
-
-## Error Handling
-
-The script includes:
-- Robust error handling for network issues
-- Detailed logging for troubleshooting
-- Graceful handling of missing data
-- Automatic retry for failed page loads
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is open source and available under the MIT License.
+---
+*Beep boop* - Made with ❤️ by PB-bot 🤖
+"Helping Hedge find his dream apartment, one scan at a time!"

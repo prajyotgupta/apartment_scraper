@@ -3,29 +3,15 @@
       "crescent_village": {
         "url": "https://www.irvinecompanyapartments.com/locations/northern-california/san-jose/crescent-village/availability.html",
         "selectors": {
-          "unit": "div.unit-card",
-          "beds": "span.bed-bath",
-          "price": "span.price-range",
-          "floor": "span.floor-level",
-          "availability": "span.available-date"
+          "unit": "div.fapt-fp-unit__table-row:not(.fapt-fp-unit__table-row--header)",
+          "beds": "div.fapt-fp-unit__column--beds-baths > span",
+          "price": "div.fapt-fp-unit__column--price-term > span:first-child",
+          "floor": "div.fapt-fp-unit__column--amenities div > span:first-child",
+          "availability": "div.fapt-fp-unit__column--available div.fapt-fp-unit__column-inner--available"
         },
         "filters": {
-          "beds": "2 Bed 2 Bath",
-          "price_range": [3000, 4500]
-        }
-      },
-      "vista_99": {
-        "url": "https://www.equityapartments.com/san-francisco-bay/north-san-jose/vista-99-apartments#/unit-availability-tile",
-        "selectors": {
-          "unit": "div.unit-listing",
-          "beds": "span.unit-info",
-          "price": "span.unit-price",
-          "floor": "span.unit-floor",
-          "availability": "span.unit-availability"
-        },
-        "filters": {
-          "beds": "2 Bed 2 Bath",
-          "price_range": [3000, 4500]
+          "beds": "2 Bed / 2 Bath",
+          "price_range": [3000, 4200]
         }
       }
     },
